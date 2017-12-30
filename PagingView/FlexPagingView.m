@@ -10,19 +10,38 @@
 	return self;
 }
 
-//#define _KeepDecelerating
-#ifdef _KeepDecelerating
+// Handle decelerating
+- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset
+{
+	CGSize scrollViewSize = scrollView.frame.size;
+	CGPoint contentOffset = scrollView.contentOffset;
+	for (UIView *subview in scrollView.subviews)
+	{
+		if ([subview isKindOfClass:UIImageView.class]) // TODO
+			continue;
+		
+		CGRect frame = subview.frame;
+		if ((contentOffset.y > frame.origin.y) &&
+			(contentOffset.y + scrollViewSize.height < frame.origin.y + frame.size.height))
+		{
+			NSLog(@"Enable(%.2f) decelerating %d<%d<%d", velocity.y, (int)frame.origin.y, (int)contentOffset.y, (int)(frame.origin.y + frame.size.height));
+			if (targetContentOffset->y < frame.origin.y)
+				targetContentOffset->y = frame.origin.y;
+			else if (targetContentOffset->y > frame.origin.y + frame.size.height - scrollViewSize.height)
+				targetContentOffset->y = frame.origin.y + frame.size.height - scrollViewSize.height;
+			return;
+		}
+	}
+	
+	// Disable decelerating
+	*targetContentOffset = scrollView.contentOffset;
+}
+
+//
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
 	[self pagingScrollView:scrollView];
 }
-#else
-// Disable decelerating
-- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset
-{
-	*targetContentOffset = scrollView.contentOffset;
-}
-#endif
 
 //
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate;
@@ -56,7 +75,8 @@
 
 	for (UIView *subview in scrollView.subviews)
 	{
-		if ([subview isKindOfClass:UIImageView.class]) continue;
+		if ([subview isKindOfClass:UIImageView.class]) // TODO
+			continue;
 		
 		CGFloat y = subview.frame.origin.y;
 		
