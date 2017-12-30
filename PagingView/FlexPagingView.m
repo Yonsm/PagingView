@@ -3,6 +3,7 @@
 
 @implementation FlexPagingView
 
+//
 - (instancetype)initWithFrame:(CGRect)frame
 {
 	self = [super initWithFrame:frame];
@@ -82,7 +83,7 @@
 		// Exclude scroll indicator
 		if ([subview isKindOfClass:UIImageView.class] && frame.size.width < 5)
 			continue;
-
+		
 		// Paging to this subview
 		if (midOffsetY >= frame.origin.y && midOffsetY <= frame.origin.y + frame.size.height)
 		{
@@ -110,3 +111,4 @@
 }
 
 @end
+

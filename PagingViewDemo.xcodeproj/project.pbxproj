@@ -81,9 +81,9 @@
 		24FC7F0A1FF69C6E00F971F7 /* PagingView */ = {
 			isa = PBXGroup;
 			children = (
-				24FC7F0B1FF69C6E00F971F7 /* FlexPagingView.h */,
-				24FC7F0C1FF69C6E00F971F7 /* FixedPagingView.m */,
 				24FC7F0E1FF69C6E00F971F7 /* FixedPagingView.h */,
+				24FC7F0C1FF69C6E00F971F7 /* FixedPagingView.m */,
+				24FC7F0B1FF69C6E00F971F7 /* FlexPagingView.h */,
 				24FC7F0D1FF69C6E00F971F7 /* FlexPagingView.m */,
 			);
 			path = PagingView;
