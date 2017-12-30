@@ -87,7 +87,7 @@
 		// Paging to this subview
 		if (midOffsetY >= frame.origin.y && midOffsetY <= frame.origin.y + frame.size.height)
 		{
-			if (contentOffset.y < frame.origin.y)
+			if (contentOffset.y < frame.origin.y/* || frame.size.height < scrollViewSize.height*/)
 			{
 				contentOffset.y = frame.origin.y;
 			}
@@ -113,4 +113,3 @@
 }
 
 @end
-
