@@ -33,7 +33,6 @@
 {
 	CGRect frame = pagingView.bounds;
 	
-	UIFont *font = [UIFont boldSystemFontOfSize:30];
 	for (int j = 0; j < 4; j++)
 	{
 		UILabel *label = [[UILabel alloc] initWithFrame:frame];
