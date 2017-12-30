@@ -108,6 +108,8 @@
 			return;
 		}
 	}
+	
+	// NSLog(@"WARNING: %@", @"Missed proper subview!");
 }
 
 @end
