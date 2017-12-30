@@ -24,11 +24,24 @@
 		if ((contentOffset.y > frame.origin.y) &&
 			(contentOffset.y + scrollViewSize.height < frame.origin.y + frame.size.height))
 		{
-			NSLog(@"Enable(%.2f) decelerating %d<%d<%d", velocity.y, (int)frame.origin.y, (int)contentOffset.y, (int)(frame.origin.y + frame.size.height));
+			// Should enable decelerating in current view
+			//NSLog(@"Should Enable decelerating: velocity.y=%.2f %d<%d<%d", velocity.y, (int)frame.origin.y, (int)contentOffset.y, (int)(frame.origin.y + frame.size.height));
 			if (targetContentOffset->y < frame.origin.y)
-				targetContentOffset->y = frame.origin.y;
-			else if (targetContentOffset->y > frame.origin.y + frame.size.height - scrollViewSize.height)
-				targetContentOffset->y = frame.origin.y + frame.size.height - scrollViewSize.height;
+			{
+				targetContentOffset->y = frame.origin.y; // Limit decelerating to current view's top
+			}
+			else
+			{
+				CGFloat maxY = frame.origin.y + frame.size.height - scrollViewSize.height;
+				if (targetContentOffset->y > maxY)
+				{
+					targetContentOffset->y = maxY; // Limit decelerating to current view's bottom
+				}
+				else
+				{
+					// Keep decelerating
+				}
+			}
 			return;
 		}
 	}
@@ -44,11 +57,11 @@
 }
 
 //
-- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate;
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
 	if (decelerate)
 	{
-		//NSLog(@"Ignore extra decelerating!");
+		// NSLog(@"scrollViewDidEndDragging: Ignore extra decelerating");
 		return;
 	}
 	else
@@ -61,17 +74,16 @@
 - (void)pagingScrollView:(UIScrollView *)scrollView
 {
 	//
-	CGFloat height = scrollView.frame.size.height;
-	if (height == 0)
-		return;
+	CGSize scrollViewSize = scrollView.frame.size;
+//	if (scrollViewSize.height == 0)
+//		return;
 	
 	//
 	CGPoint contentOffset = scrollView.contentOffset;
 	
-	CGFloat offsetY = contentOffset.y;
-	CGFloat minDelta = INT_MAX;
+	CGFloat minDelta = CGFLOAT_MAX;
 	UIView *nearlestView = nil;
-	CGFloat nearlestY = offsetY;
+	CGFloat nearlestY = contentOffset.y;
 
 	for (UIView *subview in scrollView.subviews)
 	{
@@ -80,7 +92,7 @@
 		
 		CGFloat y = subview.frame.origin.y;
 		
-		CGFloat delta = fabs(y - offsetY);
+		CGFloat delta = fabs(y - contentOffset.y);
 		if (minDelta > delta)
 		{
 			minDelta = delta;
@@ -88,13 +100,13 @@
 			nearlestY = y;
 		}
 		
-		if (subview.frame.origin.y < offsetY && (subview.frame.size.height > scrollView.frame.size.height))
+		if (subview.frame.origin.y < contentOffset.y && (subview.frame.size.height > scrollViewSize.height))
 		{
-			if ((offsetY + scrollView.frame.size.height * 3 /2 > subview.frame.origin.y + subview.frame.size.height) ||
-				offsetY + scrollView.frame.size.height < subview.frame.origin.y + subview.frame.size.height)
+			if ((contentOffset.y + scrollViewSize.height * 3 /2 > subview.frame.origin.y + subview.frame.size.height) ||
+				contentOffset.y + scrollViewSize.height < subview.frame.origin.y + subview.frame.size.height)
 			{
-				y = subview.frame.origin.y + subview.frame.size.height - scrollView.frame.size.height;
-				CGFloat delta = fabs(y - offsetY);
+				y = subview.frame.origin.y + subview.frame.size.height - scrollViewSize.height;
+				CGFloat delta = fabs(y - contentOffset.y);
 				if (minDelta > delta)
 				{
 					minDelta = delta;
@@ -108,16 +120,17 @@
 	if (nearlestView == nil)
 		return;
 	
-	if (nearlestView.frame.origin.y < offsetY && (nearlestView.frame.size.height > scrollView.frame.size.height))
+	//
+	if (nearlestView.frame.origin.y < contentOffset.y && (nearlestView.frame.size.height > scrollViewSize.height))
 	{
-		if (offsetY + scrollView.frame.size.height < nearlestView.frame.origin.y + nearlestView.frame.size.height)
+		if (contentOffset.y + scrollViewSize.height < nearlestView.frame.origin.y + nearlestView.frame.size.height)
 		{
 			return;
 		}
 	}
 	
-	//
-	if (nearlestY != offsetY)
+	// Scroll to paging offset
+	if (contentOffset.y != nearlestY)
 	{
 		contentOffset.y = nearlestY;
 		[scrollView setContentOffset:contentOffset animated:YES];
