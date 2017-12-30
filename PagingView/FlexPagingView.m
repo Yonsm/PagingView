@@ -70,7 +70,8 @@
 		
 		if (subview.frame.origin.y < offsetY && (subview.frame.size.height > scrollView.frame.size.height))
 		{
-			if (offsetY + scrollView.frame.size.height * 3 /2 > subview.frame.origin.y + subview.frame.size.height)
+			if ((offsetY + scrollView.frame.size.height * 3 /2 > subview.frame.origin.y + subview.frame.size.height) ||
+				offsetY + scrollView.frame.size.height < subview.frame.origin.y + subview.frame.size.height)
 			{
 				y = subview.frame.origin.y + subview.frame.size.height - scrollView.frame.size.height;
 				CGFloat delta = fabs(y - offsetY);
