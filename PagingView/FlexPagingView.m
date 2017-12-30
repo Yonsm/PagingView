@@ -21,8 +21,7 @@
 		if ([subview isKindOfClass:UIImageView.class] && frame.size.width < 5) // Exclude scroll indicator
 			continue;
 		
-		if ((contentOffset.y > frame.origin.y) &&
-			(contentOffset.y + scrollViewSize.height < frame.origin.y + frame.size.height))
+		if ((contentOffset.y > frame.origin.y) && (contentOffset.y + scrollViewSize.height < frame.origin.y + frame.size.height))
 		{
 			// Should enable decelerating in current view
 			//NSLog(@"Should Enable decelerating: velocity.y=%.2f %d<%d<%d", velocity.y, (int)frame.origin.y, (int)contentOffset.y, (int)(frame.origin.y + frame.size.height));
@@ -32,10 +31,10 @@
 			}
 			else
 			{
-				CGFloat maxY = frame.origin.y + frame.size.height - scrollViewSize.height;
-				if (targetContentOffset->y > maxY)
+				CGFloat maxOffsetY = frame.origin.y + frame.size.height - scrollViewSize.height;
+				if (targetContentOffset->y > maxOffsetY)
 				{
-					targetContentOffset->y = maxY; // Limit decelerating to current view's bottom
+					targetContentOffset->y = maxOffsetY; // Limit decelerating to current view's bottom
 				}
 				else
 				{
@@ -73,68 +72,40 @@
 //
 - (void)pagingScrollView:(UIScrollView *)scrollView
 {
-	//
 	CGSize scrollViewSize = scrollView.frame.size;
-//	if (scrollViewSize.height == 0)
-//		return;
-	
-	//
 	CGPoint contentOffset = scrollView.contentOffset;
-	
-	CGFloat minDelta = CGFLOAT_MAX;
-	UIView *nearlestView = nil;
-	CGFloat nearlestY = contentOffset.y;
-
+	CGFloat midOffsetY = contentOffset.y + scrollViewSize.height / 2;
 	for (UIView *subview in scrollView.subviews)
 	{
 		CGRect frame = subview.frame;
-		if ([subview isKindOfClass:UIImageView.class] && frame.size.width < 5) // Exclude scroll indicator
+		
+		// Exclude scroll indicator
+		if ([subview isKindOfClass:UIImageView.class] && frame.size.width < 5)
 			continue;
 
-		CGFloat y = subview.frame.origin.y;
-		
-		CGFloat delta = fabs(y - contentOffset.y);
-		if (minDelta > delta)
+		// Paging to this subview
+		if (midOffsetY >= frame.origin.y && midOffsetY <= frame.origin.y + frame.size.height)
 		{
-			minDelta = delta;
-			nearlestView = subview;
-			nearlestY = y;
-		}
-		
-		if (subview.frame.origin.y < contentOffset.y && (subview.frame.size.height > scrollViewSize.height))
-		{
-			if ((contentOffset.y + scrollViewSize.height * 3 /2 > subview.frame.origin.y + subview.frame.size.height) ||
-				contentOffset.y + scrollViewSize.height < subview.frame.origin.y + subview.frame.size.height)
+			if (contentOffset.y < frame.origin.y)
 			{
-				y = subview.frame.origin.y + subview.frame.size.height - scrollViewSize.height;
-				CGFloat delta = fabs(y - contentOffset.y);
-				if (minDelta > delta)
+				contentOffset.y = frame.origin.y;
+			}
+			else
+			{
+				CGFloat maxOffsetY = frame.origin.y + frame.size.height - scrollViewSize.height;
+				if (contentOffset.y > maxOffsetY)
 				{
-					minDelta = delta;
-					nearlestView = subview;
-					nearlestY = y;
+					contentOffset.y = maxOffsetY;
+				}
+				else
+				{
+					return;
 				}
 			}
-		}
-	}
-	
-	if (nearlestView == nil)
-		return;
-	
-	//
-	if (nearlestView.frame.origin.y < contentOffset.y && (nearlestView.frame.size.height > scrollViewSize.height))
-	{
-		if (contentOffset.y + scrollViewSize.height < nearlestView.frame.origin.y + nearlestView.frame.size.height)
-		{
+			// Scroll to paging offset
+			[scrollView setContentOffset:contentOffset animated:YES];
 			return;
 		}
-	}
-	
-	// Scroll to paging offset
-	if (contentOffset.y != nearlestY)
-	{
-		contentOffset.y = nearlestY;
-		[scrollView setContentOffset:contentOffset animated:YES];
 	}
 }
 
