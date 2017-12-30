@@ -17,10 +17,10 @@
 	CGPoint contentOffset = scrollView.contentOffset;
 	for (UIView *subview in scrollView.subviews)
 	{
-		if ([subview isKindOfClass:UIImageView.class]) // TODO
+		CGRect frame = subview.frame;
+		if ([subview isKindOfClass:UIImageView.class] && frame.size.width < 5) // Exclude scroll indicator
 			continue;
 		
-		CGRect frame = subview.frame;
 		if ((contentOffset.y > frame.origin.y) &&
 			(contentOffset.y + scrollViewSize.height < frame.origin.y + frame.size.height))
 		{
@@ -87,9 +87,10 @@
 
 	for (UIView *subview in scrollView.subviews)
 	{
-		if ([subview isKindOfClass:UIImageView.class]) // TODO
+		CGRect frame = subview.frame;
+		if ([subview isKindOfClass:UIImageView.class] && frame.size.width < 5) // Exclude scroll indicator
 			continue;
-		
+
 		CGFloat y = subview.frame.origin.y;
 		
 		CGFloat delta = fabs(y - contentOffset.y);
