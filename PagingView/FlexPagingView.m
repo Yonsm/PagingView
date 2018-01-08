@@ -75,6 +75,7 @@
 {
 	CGSize scrollViewSize = scrollView.frame.size;
 	CGPoint contentOffset = scrollView.contentOffset;
+	CGSize contentSize = scrollView.contentSize;
 	CGFloat midOffsetY = contentOffset.y + scrollViewSize.height / 2;
 	for (UIView *subview in scrollView.subviews)
 	{
@@ -87,7 +88,7 @@
 		// Paging to this subview
 		if (midOffsetY >= frame.origin.y && midOffsetY <= frame.origin.y + frame.size.height)
 		{
-			if (contentOffset.y < frame.origin.y/* || frame.size.height < scrollViewSize.height*/)
+			if (contentOffset.y < frame.origin.y || frame.size.height < scrollViewSize.height)
 			{
 				contentOffset.y = frame.origin.y;
 			}
@@ -104,7 +105,13 @@
 				}
 			}
 			// Scroll to paging offset
-			[scrollView setContentOffset:contentOffset animated:YES];
+			if (contentOffset.y > contentSize.height - scrollViewSize.height)
+			{
+				contentOffset.y = contentSize.height - scrollViewSize.height;
+			}
+			[UIView animateWithDuration:0.3 animations:^{
+				[scrollView setContentOffset:contentOffset animated:NO];
+			}];
 			return;
 		}
 	}

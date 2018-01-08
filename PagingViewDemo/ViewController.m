@@ -32,6 +32,7 @@
 - (void)addSubviewsForPagingView:(UIScrollView *)pagingView
 {
 	CGRect frame = pagingView.bounds;
+	frame.size.height -= 40;
 	
 	for (int j = 0; j < 4; j++)
 	{
